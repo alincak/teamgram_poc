@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:teamgram_poc/ProgressHUD.dart';
 import 'package:teamgram_poc/api/api_service.dart';
 import 'package:teamgram_poc/models/login_model.dart';
 import 'package:teamgram_poc/extensions/extensions.dart';
+import 'package:teamgram_poc/pages/domains_view.dart';
+
+import 'note_item_view.dart';
 
 class LoginView extends StatefulWidget {
   @override
@@ -10,7 +14,6 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final scanffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<FormState> globalFormKey = new GlobalKey<FormState>();
   bool hidePassword = true;
   LoginRequestModel requestModel;
@@ -34,7 +37,6 @@ class _LoginViewState extends State<LoginView> {
 
   Widget _uiSetup(BuildContext context) {
     return Scaffold(
-      key: scanffoldKey,
       backgroundColor: Theme.of(context).accentColor,
       body: SingleChildScrollView(
           child: Column(
@@ -133,17 +135,18 @@ class _LoginViewState extends State<LoginView> {
                               });
 
                               if (!domains.isNullOrEmpty) {
-                                final snackBar = SnackBar(
-                                  content: Text("Login Successfull"),
+                                Fluttertoast.showToast(
+                                    msg: "Login Successfull.");
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => NoteItemView(
+                                            domains: domains,
+                                          )),
                                 );
-                                scanffoldKey.currentState
-                                    .showSnackBar(snackBar);
                               } else {
-                                final snackBar = SnackBar(
-                                  content: Text("Login failed."),
-                                );
-                                scanffoldKey.currentState
-                                    .showSnackBar(snackBar);
+                                Fluttertoast.showToast(msg: "Login failed.");
                               }
                             });
                           }
