@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:teamgram_poc/ProgressHUD.dart';
 import 'package:teamgram_poc/api/api_service.dart';
+import 'package:teamgram_poc/models/domain_model.dart';
 import 'package:teamgram_poc/models/login_model.dart';
 import 'package:teamgram_poc/extensions/extensions.dart';
 import 'package:teamgram_poc/pages/domains_view.dart';
-
-import 'note_item_view.dart';
 
 class LoginView extends StatefulWidget {
   @override
@@ -17,8 +17,10 @@ class _LoginViewState extends State<LoginView> {
   GlobalKey<FormState> globalFormKey = new GlobalKey<FormState>();
   bool hidePassword = true;
   LoginRequestModel requestModel;
-
+  String otp;
   bool isApiCallProcess = false;
+
+  var _apiService = new APIService();
 
   @override
   void initState() {
@@ -128,8 +130,7 @@ class _LoginViewState extends State<LoginView> {
                               isApiCallProcess = true;
                             });
 
-                            APIService apiService = new APIService();
-                            apiService.login(requestModel).then((domains) {
+                            _apiService.login(requestModel).then((domains) {
                               setState(() {
                                 isApiCallProcess = false;
                               });
@@ -137,14 +138,7 @@ class _LoginViewState extends State<LoginView> {
                               if (!domains.isNullOrEmpty) {
                                 Fluttertoast.showToast(
                                     msg: "Login Successfull.");
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => NoteItemView(
-                                            domains: domains,
-                                          )),
-                                );
+                                otpDialogBox(context, domains);
                               } else {
                                 Fluttertoast.showToast(msg: "Login failed.");
                               }
@@ -177,5 +171,53 @@ class _LoginViewState extends State<LoginView> {
     }
 
     return false;
+  }
+
+  otpDialogBox(BuildContext context, List<DomainModel> domains) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            title: Text('Enter your OTP'),
+            content: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                maxLength: 6,
+                onChanged: (value) {
+                  otp = value;
+                },
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+              ),
+            ),
+            contentPadding: EdgeInsets.all(10.0),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  _apiService.twoFACodeValidate(otp).then((valid) {
+                    if (valid) {
+                      Fluttertoast.showToast(msg: "Pin doğru.");
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DomainView(
+                                  domains: domains,
+                                )),
+                      );
+                    } else {
+                      Fluttertoast.showToast(msg: "Pin yanlış.");
+                    }
+                  });
+                },
+                child: Text(
+                  'Submit',
+                ),
+              ),
+            ],
+          );
+        });
   }
 }

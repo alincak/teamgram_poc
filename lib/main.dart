@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:teamgram_poc/api/api_service.dart';
 import 'package:teamgram_poc/pages/login_view.dart';
+import 'package:teamgram_poc/pages/notes_view.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,7 +34,38 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: LoginView(),
+      home: RoutePage(),
     );
+  }
+}
+
+class RoutePage extends StatefulWidget {
+  @override
+  RoutePageState createState() => RoutePageState();
+}
+
+class RoutePageState extends State<RoutePage> {
+  final APIService _apiService = APIService();
+  bool isLoggedin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiService.isLoggedIn().then((_isLoggedIn) {
+      if (_isLoggedIn) {
+        setState(() {
+          isLoggedin = true;
+        });
+      } else {
+        setState(() {
+          isLoggedin = false;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return isLoggedin ? NotesView() : LoginView();
   }
 }

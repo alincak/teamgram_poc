@@ -9,7 +9,6 @@ class DomainModel {
   DomainModel({this.id, this.name, this.displayName, this.currency});
 
   factory DomainModel.fromJson(Map<String, dynamic> jsonToken) {
-    print(jsonToken);
     return DomainModel(
       id: jsonToken["Id"] != null ? int.parse(jsonToken["Id"]) : 0,
       name: jsonToken["Name"] != null ? jsonToken["Name"] : "",

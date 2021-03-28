@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:teamgram_poc/api/api_service.dart';
 import 'package:teamgram_poc/models/domain_model.dart';
+import 'package:teamgram_poc/pages/notes_view.dart';
 
 class DomainView extends StatelessWidget {
   final List<DomainModel> domains;
@@ -20,9 +21,15 @@ class DomainView extends StatelessWidget {
             return ListTile(
               title: Text(_domain.displayName),
               onTap: () {
-                print(_domain.name);
                 APIService apiService = new APIService();
                 apiService.saveDomainName(_domain.name);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotesView(),
+                  ),
+                );
               },
             );
           }),
