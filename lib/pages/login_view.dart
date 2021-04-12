@@ -39,7 +39,6 @@ class _LoginViewState extends State<LoginView> {
 
   Widget _uiSetup(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).accentColor,
       body: SingleChildScrollView(
           child: Column(
         children: <Widget>[
@@ -63,8 +62,10 @@ class _LoginViewState extends State<LoginView> {
                   child: Column(
                     children: <Widget>[
                       SizedBox(height: 25),
-                      Text("Login",
-                          style: Theme.of(context).textTheme.headline2),
+                      Image(
+                        image: AssetImage('images/logo/teamgram-600px.png'),
+                        width: 150,
+                      ),
                       SizedBox(height: 20),
                       new TextFormField(
                         keyboardType: TextInputType.emailAddress,
@@ -72,17 +73,14 @@ class _LoginViewState extends State<LoginView> {
                         /*validator: (input) =>
                             !input.contains("@") ? "Email id is null" : null,*/
                         decoration: new InputDecoration(
-                            hintText: "UserName or Email address",
+                            hintText: "Username",
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context)
-                                        .accentColor
-                                        .withOpacity(0.2))),
+                                    color: Colors.grey.withOpacity(0.2))),
                             focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).accentColor)),
-                            prefixIcon: Icon(Icons.verified_user,
-                                color: Theme.of(context).accentColor)),
+                                borderSide: BorderSide(color: Colors.green)),
+                            prefixIcon:
+                                Icon(Icons.verified_user, color: Colors.grey)),
                       ),
                       SizedBox(height: 20),
                       new TextFormField(
@@ -96,23 +94,17 @@ class _LoginViewState extends State<LoginView> {
                             hintText: "Password",
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context)
-                                        .accentColor
-                                        .withOpacity(0.2))),
+                                    color: Colors.grey.withOpacity(0.2))),
                             focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).accentColor)),
-                            prefixIcon: Icon(Icons.lock,
-                                color: Theme.of(context).accentColor),
+                                borderSide: BorderSide(color: Colors.green)),
+                            prefixIcon: Icon(Icons.lock, color: Colors.grey),
                             suffixIcon: IconButton(
                               onPressed: () {
                                 setState(() {
                                   hidePassword = !hidePassword;
                                 });
                               },
-                              color: Theme.of(context)
-                                  .accentColor
-                                  .withOpacity(0.2),
+                              color: Colors.grey.withOpacity(0.2),
                               icon: Icon(hidePassword
                                   ? Icons.visibility_off
                                   : Icons.visibility),
@@ -121,37 +113,41 @@ class _LoginViewState extends State<LoginView> {
                       SizedBox(
                         height: 30,
                       ),
-                      FlatButton(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 12, horizontal: 80),
-                        onPressed: () {
-                          if (validateAndSave()) {
-                            setState(() {
-                              isApiCallProcess = true;
-                            });
-
-                            _apiService.login(requestModel).then((domains) {
+                      SizedBox(
+                        width: double.infinity,
+                        height: 35,
+                        child: ElevatedButton(
+                          child: Text('Log in'),
+                          onPressed: () {
+                            if (validateAndSave()) {
                               setState(() {
-                                isApiCallProcess = false;
+                                isApiCallProcess = true;
                               });
 
-                              if (!domains.isNullOrEmpty) {
-                                Fluttertoast.showToast(
-                                    msg: "Login Successfull.");
-                                otpDialogBox(context, domains);
-                              } else {
-                                Fluttertoast.showToast(msg: "Login failed.");
-                              }
-                            });
-                          }
-                        },
-                        child: Text(
-                          "Login",
-                          style: TextStyle(color: Colors.white),
+                              _apiService.login(requestModel).then((domains) {
+                                setState(() {
+                                  isApiCallProcess = false;
+                                });
+
+                                if (!domains.isNullOrEmpty) {
+                                  Fluttertoast.showToast(
+                                      msg: "Login Successfull.");
+                                  _apiService
+                                      .showTwoFADialog()
+                                      .then((value) => {
+                                            if (value)
+                                              {otpDialogBox(context, domains)}
+                                            else
+                                              {gotoDomainView(context, domains)}
+                                          });
+                                } else {
+                                  Fluttertoast.showToast(msg: "Login failed.");
+                                }
+                              });
+                            }
+                          },
                         ),
-                        color: Theme.of(context).accentColor,
-                        shape: StadiumBorder(),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -171,6 +167,17 @@ class _LoginViewState extends State<LoginView> {
     }
 
     return false;
+  }
+
+  gotoDomainView(BuildContext context, List<DomainModel> domains) {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => DomainView(
+                domains: domains,
+              )),
+    );
   }
 
   otpDialogBox(BuildContext context, List<DomainModel> domains) {
@@ -199,14 +206,7 @@ class _LoginViewState extends State<LoginView> {
                   _apiService.twoFACodeValidate(otp).then((valid) {
                     if (valid) {
                       Fluttertoast.showToast(msg: "Pin doğru.");
-                      Navigator.of(context).pop();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DomainView(
-                                  domains: domains,
-                                )),
-                      );
+                      gotoDomainView(context, domains);
                     } else {
                       Fluttertoast.showToast(msg: "Pin yanlış.");
                     }

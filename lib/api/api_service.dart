@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,6 +53,12 @@ class APIService {
     var isActive =
         response.headers["tg-otptwofaisactive"].toLowerCase() == 'true';
     return isActive;
+  }
+
+  Future<bool> showTwoFADialog() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.containsKey('TFAVerified');
   }
 
   Future<bool> isLoggedIn() async {

@@ -46,7 +46,17 @@ class NotesViewState extends State<NotesView> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text('First Route'),
+        title: Text('TeamGram'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.filter_alt_outlined),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {},
+          )
+        ],
       ),
       body: ListView.builder(
           itemCount: itemCount,
@@ -54,6 +64,13 @@ class NotesViewState extends State<NotesView> {
             var _note = timeLine.notes[index];
             return NoteItem(note: _note);
           }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add your onPressed code here!
+        },
+        child: const Icon(Icons.add_outlined),
+        backgroundColor: Colors.blueAccent,
+      ),
       drawer: new Drawer(
         child: ListView(
           children: <Widget>[
