@@ -24,7 +24,7 @@ dependencies:
   pin_code_fields: ^7.0.0
   shared_preferences: ^2.0.5
   fluttertoast: ^8.0.3
-  http:
+  http: ^0.13.5
   intl:
   flutter:
     sdk: flutter
